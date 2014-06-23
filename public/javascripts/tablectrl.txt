@@ -1,0 +1,9 @@
+var geotopoApp = angular.module('geotopoApp', []);
+
+geotopoApp.controller('Tables', function ($scope, $http) {
+
+	$http.post('./tables').success(function(data) {
+		$scope.datasets = data;
+	});
+
+});

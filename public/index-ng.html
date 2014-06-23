@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" ng-app='geotopoApp'>
+<head>
+  <meta charset="utf-8">
+  <title>GeoTopo</title>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css">
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+  <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>  
+  <script src="javascripts/slider.js"></script>
+  <script src="javascripts/controllers.js"></script>
+
+  <style>
+	.nav, .pagination, .carousel, .panel-title a { cursor: pointer; } 
+  
+	#polygon {
+      fill: #ddd;
+      stroke: #000;
+	  stroke-width: 0.25px;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+	
+	#options {
+		width:100%; 
+		height:100%;
+	}
+	
+	#simplification {
+		position: fixed;
+		width: 220px;
+		left: 20px;
+		top: 120px;
+	}
+	
+	#datasets {
+		position: fixed;
+		width: 160px;
+		left: 20px;
+		top: 5px;
+	}
+	
+	#map {
+		position: fixed;
+		border: 1px solid #000000;
+		top: 20px;
+		left: 260px;
+		height: 90%;
+		overflow-y: scroll;
+		overflow-x: scroll;
+	}
+	
+	#attributes {
+		position: fixed;
+		border: 1px solid #000000;
+		top: 20px;
+		right: 20px;
+		height: 80%;
+		overflow-y: scroll;
+	}
+	
+	#download {
+		position: fixed;
+		width: 80px;
+		left: 440px;
+		top: 20px;
+	}
+		
+  </style>
+</head>
+<body>
+
+		<div id="datasets" class="col-xs-3" ng-controller="TablesCtrl">
+			<p>Add Feature</p>
+			<select class="form-control" placeholder=".col-xs-3" ng-model="table"
+				ng-change="onSelect(table)">
+				<option ng-repeat="ds in datasets"
+						value="{{ds}}">
+				  {{ds}}
+				</option>
+			</select>
+		</div>
+		
+		<div id="simplification">
+		<tabset justified="true">
+			<tab heading="Simplification">
+				<div ng-controller="MapShaperCtrl">
+				<b>MapShaper</b><br>
+				Level of Detail (%): 
+				<div class="row">
+					<div ui-slider="slider.options" min="0" max="100" ng-model="slider.value">
+					</div>
+					<div class="col-xs-3">
+						<input type="text" ng-model="slider.oppositeValue" placeholder=".col-xs-3"/>
+					</div>
+				</div>
+				<form action="">
+					<input type="radio" ng-model="algorithm" value="mod2">Modified Visvalingam<br>
+					<input type="radio" ng-model="algorithm" value="vis">Visvalingam<br>
+					<input type="radio" ng-model="algorithm" value="dp">Douglas-Peucker<br>
+				</form>
+				<button class="btn btn-default" ng-click="isCollapsed = !isCollapsed">More ></button>
+				<form action="" collapse="isCollapsed" style="position:relative; left: 10px;">
+					<input type="checkbox" ng-model="repair" />Repair intersections<br>
+					<input type="checkbox" ng-model="autosnap" />Automatic snapping<br>
+					<input type="checkbox" ng-model="preventRemoval" />Prevent shape removal<br>
+					<input type="text" ng-model="coordPrecision" />
+				</form>
+				</div>
+		
+			<br>
+			<div ng-controller="TJSimplifyCtrl">
+				<b>TopoJSON</b><br>
+				Minimal Area<br>
+				<div class="row">
+					<div ui-slider="maSlider.options" min="0" max="100" ng-model="maSlider.value">
+					</div>
+					<div class="col-xs-3">
+						<input type="text" ng-model="maSlider.realValue" placeholder=".col-xs-3"/>
+					</div>
+				</div>
+				Retain Proportion<br>
+				<div class="row">
+					<div ui-slider="rtSlider.options" min="0" max="100" ng-model="rtSlider.value">
+					</div class="col-xs-3">
+					<div>
+						<input type="text" ng-model="rtSlider.realValue" placeholder=".col-xs-3"/>
+					</div>
+				</div>
+			</div>
+			
+			<br>
+			<div ng-controller="OGRSimplifyCtrl">
+				<b>OGR</b><br/>
+				<p>Tolerance</p>
+				<div class="row">
+					<div ui-slider="tolSlider.options" ng-model="tolSlider.value">
+					</div>
+					<div class="col-xs-3">
+						<input type="text" ng-model="tolSlider.realValue" placeholder=".col-xs-3"/>
+					</div>
+				</div>
+			</div>
+		</tab>
+		<tab heading="Settings">
+			<div ng-controller="TJMinMaxCtrl">
+				<b>TopoJSON</b><br>
+				Minimal Area<br>
+				<div style="position: relative; left: 20px;">
+					Minimal Treshold
+					<input type="text" ng-model="maSlider.realMin" ng-blur="setMaMin()"/>
+					<br>
+					Maximal Treshold
+					<input type="text" ng-model="maSlider.realMax" ng-blur="setMaMax()"/>
+				</div>
+				Retain Proportion<br>
+				<div style="position: relative; left: 20px;">
+					Minimal Treshold
+					<input type="text" ng-model="rtSlider.realMin" ng-blur="setRtMin()"/>
+					<br>
+					Maximal Treshold
+					<input type="text" ng-model="rtSlider.realMax" ng-blur="setRtMax()"/>
+				</div>
+				<br>
+				<b>Ogr</b><br>
+				Simplification Distance<br>
+				<div style="position: relative; left: 20px;">
+					Minimal Treshold
+					<input type="text" ng-model="tolSlider.realMin" ng-blur="setTolMin()"/>
+					<br>
+					Maximal Treshold
+					<input type="text" ng-model="tolSlider.realMax" ng-blur="setTolMax()"/>
+				</div>
+			</div>
+		</tab>
+		</tabset>
+		</div>
+	
+		<div id="map" ng-controller="MapCtrl"></div>
+	
+	<div id="newdatasets" ng-controller="TablesCtrl">
+		
+	</div>
+	<!--<div id="attributes" ng-controller="AttributesCtrl">
+	<p>Attributes</p>
+    <span ng-repeat="attr in attributes">
+      <label class="checkbox" for="{{attr}}">
+        <input type="checkbox" ng-model="selection.attrs[attr]" name="group" id="{{attr}}" />
+        {{attr}}
+      </label>
+    </span> 
+	</div>-->
+
+</body>
+</html>

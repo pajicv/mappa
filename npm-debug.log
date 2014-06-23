@@ -1,0 +1,29 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'c:\\node\\\\node.exe',
+1 verbose cli   'c:\\node\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'start' ]
+2 info using npm@1.4.9
+3 info using node@v0.10.28
+4 verbose node symlink c:\node\\node.exe
+5 verbose run-script [ 'prestart', 'start', 'poststart' ]
+6 info prestart gt1@0.0.1
+7 info start gt1@0.0.1
+8 verbose unsafe-perm in lifecycle true
+9 info gt1@0.0.1 Failed to exec start script
+10 error gt1@0.0.1 start: `node ./bin/www`
+10 error Exit status 8
+11 error Failed at the gt1@0.0.1 start script.
+11 error This is most likely a problem with the gt1 package,
+11 error not with npm itself.
+11 error Tell the author that this fails on your system:
+11 error     node ./bin/www
+11 error You can get their info via:
+11 error     npm owner ls gt1
+11 error There is likely additional logging output above.
+12 error System Windows_NT 6.1.7601
+13 error command "c:\\node\\\\node.exe" "c:\\node\\node_modules\\npm\\bin\\npm-cli.js" "start"
+14 error cwd C:\node\gt1
+15 error node -v v0.10.28
+16 error npm -v 1.4.9
+17 error code ELIFECYCLE
+18 verbose exit [ 1, true ]

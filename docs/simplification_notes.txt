@@ -1,0 +1,71 @@
+1. MapShaper
+
+	Methods
+
+	a. Douglas-Peucker simplification (a.k.a. Ramer-Douglas-Peucker). Simplified lines remain within a specified distance 
+	of original lines. Good for thinning dense vertices but tends to form spikes at high simplification.
+
+	b. Visvalingam simplification. Polylines are simplified by iteratively removing the point that forms the least-area 
+	triangle with two adjacent points.
+
+	c. A modified version of Visvalingam simplification. Points located at the vertex of more acute angles are preferentially 
+	removed, for a smoother appearance. This is mapshaper's default simplification method. RECOMMENDED FOR MAPPING 
+
+	Parameters
+	
+	Proportion of removable points to retain. Accepts values from 0 (maximum simplification) to 1 (no simplification).
+	
+	Formats
+	
+	GeoJSON, Shapefile, TopoJSON (auto-snap doesn't work)
+	
+	Options
+	
+	repair intersections - Remove line intersections. Works by rolling back simplification along intersecting segments.
+	
+	auto-snap - Automatically fix minor topology errors by snapping together points that are almost identical. Doesn't
+				apply to TopoJSON files.
+	
+	prevent shape - Prevent small polygons from disappearing at high simplification. Protects the largest ring of multi-
+					ring features.
+					
+2. TopoJSON
+
+	Methods 
+	
+	Visvalingam’s algorithm 
+	
+	Parameters
+	
+	Minimal area threshold - the area is measured in steradians for spherical coordinates, or local square units when used 
+	with --cartesian. 
+	
+	Retain proportion - specify the fraction of coordinates (roughly corresponding to output file size) to retain. Use the 
+	latter if it is convenient, but specifying an explicit area threshold may be safer assuming you know the output resolution 
+	of the map you are going to display. The min. area threshold should be less than the per-pixel area of your map to avoid
+	visual artifacts. 
+	
+	Formats
+	
+	GeoJSON
+	TopoJSON
+	ESRI shapefile
+	comma-separated values (CSV)
+	tab-separated values (TSV)
+	
+3. OGR
+
+	Methods
+	
+	Douglas-Peucker algorithm
+	
+	Parameters
+	
+	Distance tolerance for the simplification. All vertices in the simplified geometry will be within this 
+	distance of the original geometry.
+	
+	Formats
+	
+	GeoJSON
+	Shapefile
+	
